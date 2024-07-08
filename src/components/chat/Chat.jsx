@@ -1,15 +1,33 @@
 import "./Chat.css";
 import EmojiPicker from "emoji-picker-react";
+import { doc, onSnapshot } from "firebase/firestore";
 import React, { useEffect } from "react";
+import { db } from "../../lib/firebase";
+import { useChatStore } from "../../lib/chatStore";
 
 const Chat = () => {
   const [open, setOpen] = React.useState(false);
   const [text, setText] = React.useState("");
+  const [chat, setChat] = React.useState([]);
   const endRef = React.useRef(null);
+
+  const { chatId } = useChatStore();
 
   React.useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   });
+
+  React.useEffect(() => {
+    const unSub = onSnapshot(doc(db, "chats", chatId), (res) => {
+      const data = res.data();
+      setChat(data);
+    });
+
+    return () => {
+      unSub();
+    };
+  }, [chatId]);
+
   const handleEmoji = (e) => {
     setText(text + e.emoji);
   };
@@ -43,44 +61,21 @@ const Chat = () => {
             <span>1 min ago</span>
           </div>
         </div>
-        <div className="message own">
-          <div className="texts">
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id
-              placeat quod officiis itaque esse earum velit voluptate. Dolore
-              facilis, debitis cumque numquam nostrum esse odio qui nam magni
-              voluptate voluptatem.
-            </p>
-            <span>1 min ago</span>
+        {chat.messages?.map((mes) => (
+          <div
+            className={`message ${
+              mes.senderId === currentUser.id ? "own" : ""
+            }`}
+            key={mes?.createdAt}
+          >
+            <div className="texts">
+              {mes.img && <img src={mes.img} alt="" />}
+              {mes.text && <p>{mes.text}</p>}
+              {/* <span>{mes.createdAt}</span> */}
+            </div>
           </div>
-        </div>
-        <div className="message">
-          <img src="./avatar.png" alt="" />
-          <div className="texts">
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id
-              placeat quod officiis itaque esse earum velit voluptate. Dolore
-              facilis, debitis cumque numquam nostrum esse odio qui nam magni
-              voluptate voluptatem.
-            </p>
-            <span>1 min ago</span>
-          </div>
-        </div>
-        <div className="message own">
-          <div className="texts">
-            <img
-              src="https://homeid.asia/wp-content/uploads/2023/07/2974.jpg"
-              alt=""
-            />
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id
-              placeat quod officiis itaque esse earum velit voluptate. Dolore
-              facilis, debitis cumque numquam nostrum esse odio qui nam magni
-              voluptate voluptatem.
-            </p>
-            <span>1 min ago</span>
-          </div>
-        </div>
+        ))}
+
         <div ref={endRef}></div>
       </div>
       <div className="bottom">
