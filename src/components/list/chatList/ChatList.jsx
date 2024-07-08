@@ -2,7 +2,7 @@ import React from "react";
 import "./ChatList.css";
 import AddUser from "./addUser/AddUser";
 import { useUserStore } from "../../../lib/userStore";
-import { doc, getDoc, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "../../../lib/firebase";
 import { useChatStore } from "../../../lib/chatStore";
 
@@ -35,6 +35,23 @@ const ChatList = () => {
   }, [currentUser]);
 
   const handleSelected = async (chat) => {
+    const userChats = chats.map((item) => {
+      const { user, ...rest } = item;
+
+      return rest;
+    });
+
+    const chatIndex = userChats.findIndex((item) => item.chatId == chat.chatId);
+    userChats[chatIndex].isSeen = true;
+
+    const userChatsRef = doc(db, "userchats", currentUser.id);
+    try {
+      await updateDoc(userChatsRef, {
+        chats: userChats,
+      });
+    } catch (error) {
+      console.log(error);
+    }
     // TODO: navigate to the chat screen
     changeChat(chat.chatId, chat.user);
   };
@@ -59,6 +76,9 @@ const ChatList = () => {
             className="items"
             key={chat.chatId}
             onClick={() => handleSelected(chat)}
+            style={{
+              backgroundColor: chat?.isSeen ? "transparent" : "#5183fe",
+            }}
           >
             <img src={chat.user.avatar || "./avatar.png"} alt="" />
             <div className="texts">
