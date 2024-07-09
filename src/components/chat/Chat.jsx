@@ -11,10 +11,15 @@ import React, { useEffect } from "react";
 import { db } from "../../lib/firebase";
 import { useChatStore } from "../../lib/chatStore";
 import { useUserStore } from "../../lib/userStore";
+import upload from "../../lib/upload";
 
 const Chat = () => {
   const [open, setOpen] = React.useState(false);
   const [text, setText] = React.useState("");
+  const [img, setImg] = React.useState({
+    file: null,
+    url: "",
+  });
   const [chat, setChat] = React.useState([]);
   const endRef = React.useRef(null);
 
@@ -39,13 +44,28 @@ const Chat = () => {
   const handleEmoji = (e) => {
     setText(text + e.emoji);
   };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImg({
+        file,
+        url: URL.createObjectURL(file),
+      });
+    }
+  };
+
   const handleSend = async (e) => {
-    if (text === "") return;
+    if (text === "" && img === null) return;
+    let imgUrl = "";
+    if (img.file) imgUrl = await upload(img.file);
+
     try {
       await updateDoc(doc(db, "chats", chatId), {
         messages: arrayUnion({
           senderId: currentUser.id,
           text: text,
+          img: imgUrl,
           createdAt: new Date(),
         }),
       });
@@ -73,6 +93,7 @@ const Chat = () => {
         }
       });
       setText("");
+      setImg(null);
     } catch (error) {
       console.log(error);
     }
@@ -114,7 +135,16 @@ const Chat = () => {
       </div>
       <div className="bottom">
         <div className="icons">
-          <img src="./img.png" alt="" />
+          <input
+            type="file"
+            id="imgInput"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={handleImageChange}
+          />
+          <label htmlFor="imgInput">
+            <img src="./img.png" alt="" />
+          </label>
           <img src="./camera.png" alt="" />
           <img src="./mic.png" alt="" />
         </div>
@@ -131,6 +161,9 @@ const Chat = () => {
             <EmojiPicker open={open} onEmojiClick={(e) => handleEmoji(e)} />
           </div>
         </div>
+        {img?.file && (
+          <img src={img.url} alt="Selected" className="selectedImg" />
+        )}
         <button className="sendButton" onClick={handleSend}>
           Send
         </button>
