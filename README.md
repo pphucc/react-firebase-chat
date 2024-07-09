@@ -64,8 +64,13 @@ This project is a real-time chat application built using React for the front end
     # or
     yarn dev
     ```
+    
+5. **Update the latest version:**
+    ```bash
+    git pull
+    ```
 
-5. **Deploy to Firebase Hosting (optional):**
+6. **Deploy to Firebase Hosting (optional):**
     ```bash
     npm install -g firebase-tools
     firebase login
