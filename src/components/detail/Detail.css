@@ -38,41 +38,19 @@
       }
 
       .photos {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
         overflow: scroll;
         scrollbar-width: thin;
         scrollbar-color: rgba(17, 25, 40, 0.5) transparent; /* Firefox */
         max-height: 150px;
         .photoItems {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          .photoDetail {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            img {
-              width: 40px;
-              height: 40px;
-              border-radius: 5px;
-              object-fit: cover;
-            }
-            span {
-              font-size: 14px;
-              color: lightgray;
-              font-weight: 300;
-            }
+          display: inline-block;
+          padding: 2px;
+          img {
+            width: 50px;
+            height: 50px;
+            border-radius: 5px;
+            object-fit: cover;
           }
-        }
-        .icon {
-          width: 30px;
-          height: 30px;
-          background-color: rgba(17, 25, 40, 0.3);
-          padding: 10px;
-          border-radius: 50%;
-          cursor: pointer;
         }
       }
     }
