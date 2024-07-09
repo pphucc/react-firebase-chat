@@ -12,7 +12,7 @@ import { db } from "../../lib/firebase";
 import { useChatStore } from "../../lib/chatStore";
 import { useUserStore } from "../../lib/userStore";
 import upload from "../../lib/upload";
-
+import { formatDistanceToNow, format } from "date-fns";
 const Chat = () => {
   const [open, setOpen] = React.useState(false);
   const [text, setText] = React.useState("");
@@ -99,6 +99,18 @@ const Chat = () => {
     }
   };
 
+  const formatTime = (timestamp) => {
+    const now = new Date();
+    const messageTime = new Date(timestamp.seconds * 1000);
+    const differenceInHours = (now - messageTime) / (1000 * 60 * 60);
+
+    if (differenceInHours < 24) {
+      return formatDistanceToNow(messageTime, { addSuffix: true });
+    } else {
+      return format(messageTime, "PP p");
+    }
+  };
+
   return (
     <div className="chat">
       <div className="top">
@@ -126,7 +138,7 @@ const Chat = () => {
             <div className="texts">
               {mes.img && <img src={mes.img} alt="" />}
               {mes.text && <p>{mes.text}</p>}
-              {/* <span>{mes.createdAt}</span> */}
+              <span>{formatTime(mes.createdAt)}</span>
             </div>
           </div>
         ))}
