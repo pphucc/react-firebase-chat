@@ -90,6 +90,7 @@
             height: 300px;
             border-radius: 10px;
             object-fit: cover;
+            cursor: pointer;
         }
         p {
           padding: 20px;

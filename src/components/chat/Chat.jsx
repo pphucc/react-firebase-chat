@@ -14,9 +14,19 @@ import { useUserStore } from "../../lib/userStore";
 import upload from "../../lib/upload";
 import { formatDistanceToNow, format } from "date-fns";
 import { toast } from "react-toastify";
+import Lightbox, { PLUGIN_DOWNLOAD } from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
+import "yet-another-react-lightbox/plugins/thumbnails.css";
+import {
+  Fullscreen,
+  Download,
+  Zoom,
+  Thumbnails,
+} from "yet-another-react-lightbox/plugins";
 const Chat = () => {
-  const [open, setOpen] = React.useState(false);
   const [text, setText] = React.useState("");
+  const [open, setOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = React.useState(false);
   const [img, setImg] = React.useState(null);
   const [chat, setChat] = React.useState([]);
   const endRef = React.useRef(null);
@@ -24,6 +34,24 @@ const Chat = () => {
   const { chatId, user, isCurrentUserBlocked, isReceiverBlocked } =
     useChatStore();
   const { currentUser } = useUserStore();
+
+  let slides = [];
+  const [index, setIndex] = React.useState(0);
+
+  chat.messages?.forEach((mes) => {
+    if (mes.img)
+      slides.push({
+        src: mes.img,
+        title: "Message img",
+        description: "Message img ",
+      });
+  });
+
+  const handleOpen = (mes) => {
+    setIsOpen(true);
+    for (let i = 0; i < slides.length; i++)
+      if (mes.img === slides[i].src) setIndex(i);
+  };
 
   React.useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -145,7 +173,9 @@ const Chat = () => {
             key={mes?.createdAt}
           >
             <div className="texts">
-              {mes.img && <img src={mes.img} alt="" />}
+              {mes.img && (
+                <img src={mes.img} alt="" onClick={() => handleOpen(mes)} />
+              )}
               {mes.text && <p>{mes.text}</p>}
               <span>{formatTime(mes.createdAt)}</span>
             </div>
@@ -196,6 +226,13 @@ const Chat = () => {
           </button>
         </div>
       )}
+      <Lightbox
+        open={isOpen}
+        slides={slides}
+        index={index}
+        plugins={[Fullscreen, Download, Zoom, Thumbnails]}
+        close={() => setIsOpen(false)}
+      />
     </div>
   );
 };
