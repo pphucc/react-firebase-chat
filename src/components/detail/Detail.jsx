@@ -11,6 +11,15 @@ import {
   onSnapshot,
   updateDoc,
 } from "firebase/firestore";
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
+import "yet-another-react-lightbox/plugins/thumbnails.css";
+import {
+  Fullscreen,
+  Download,
+  Zoom,
+  Thumbnails,
+} from "yet-another-react-lightbox/plugins";
 
 const Detail = () => {
   const { chatId, user, changeBlock, isCurrentUserBlocked, isReceiverBlocked } =
@@ -18,7 +27,7 @@ const Detail = () => {
   const { currentUser } = useUserStore();
   const [chat, setChat] = React.useState([]);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
-
+  const [isOpen, setIsOpen] = React.useState(false);
   React.useEffect(() => {
     const unSub = onSnapshot(doc(db, "chats", chatId), (res) => {
       const data = res.data();
@@ -30,6 +39,23 @@ const Detail = () => {
     };
   }, [chatId]);
 
+  let slides = [];
+  const [index, setIndex] = React.useState(0);
+
+  chat.messages?.forEach((mes) => {
+    if (mes.img)
+      slides.push({
+        src: mes.img,
+        title: "Message img",
+        description: "Message img ",
+      });
+  });
+
+  const handleOpen = (mes) => {
+    setIsOpen(true);
+    for (let i = 0; i < slides.length; i++)
+      if (mes.img === slides[i].src) setIndex(i);
+  };
   const handleBlock = () => {
     setIsModalOpen(true);
   };
@@ -87,7 +113,7 @@ const Detail = () => {
               if (mes.img) {
                 return (
                   <div className="photoItems" key={index}>
-                    <img src={mes.img} alt="" />
+                    <img src={mes.img} alt="" onClick={() => handleOpen(mes)} />
                   </div>
                 );
               } else {
@@ -121,6 +147,13 @@ const Detail = () => {
         message={`Are you sure you want to ${
           isReceiverBlocked ? "unblock" : "block"
         } this user?`}
+      />
+      <Lightbox
+        open={isOpen}
+        slides={slides}
+        index={index}
+        plugins={[Fullscreen, Download, Zoom, Thumbnails]}
+        close={() => setIsOpen(false)}
       />
     </div>
   );

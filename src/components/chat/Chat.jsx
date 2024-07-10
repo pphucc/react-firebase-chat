@@ -14,7 +14,7 @@ import { useUserStore } from "../../lib/userStore";
 import upload from "../../lib/upload";
 import { formatDistanceToNow, format } from "date-fns";
 import { toast } from "react-toastify";
-import Lightbox, { PLUGIN_DOWNLOAD } from "yet-another-react-lightbox";
+import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
 import {
@@ -209,6 +209,9 @@ const Chat = () => {
             placeholder="Type a message..."
             onChange={(e) => setText(e.target.value)}
             value={text}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSend();
+            }}
           />
           <div className="emoji">
             <img onClick={() => setOpen((p) => !p)} src="./emoji.png" alt="" />
