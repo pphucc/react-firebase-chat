@@ -7,7 +7,7 @@ import {
   onSnapshot,
   updateDoc,
 } from "firebase/firestore";
-import React, { useEffect } from "react";
+import React from "react";
 import { db } from "../../lib/firebase";
 import { useChatStore } from "../../lib/chatStore";
 import { useUserStore } from "../../lib/userStore";
